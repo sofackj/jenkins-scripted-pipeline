@@ -3,6 +3,7 @@
 ## Scripted Pipelines
 
 ### Variables in Scripted pipelines
+Check his [guide](https://e.printstacktrace.blog/jenkins-pipeline-environment-variables-the-definitive-guide/)
 - Define variables : Simple way
 ```sh
 node {
@@ -49,7 +50,38 @@ node {
 }
 ```
 
-### Try and Catch with pipelines
+### How to do loops in pipelines
+Thanks to [Oiflnd](https://gist.github.com/oifland/ab56226d5f0375103141b5fbd7807398)
+
+- Loops on a list without 'for'
+```sh
+// List type variables doesn't work with synamic and static declaration
+my_list = ['a', 'b', 'c']
+// Start job
+node() {
+    stage('Loop on the abcs variable') {
+        my_list.each { item ->
+        sh "echo This is ${item}"
+        }
+    }
+}
+```
+- Loops on list with 'for'
+```sh
+//List type variables doesn't work with synamic and static declaration
+my_list = ['a', 'b', 'c']
+// Start job
+node() {
+    stage('Loop on the abcs variable') {
+        echo "Here the elements of the list"
+        for (int i = 0; i < my_list.size(); i++) {
+        sh "echo Hello ${my_list[i]}"
+        }
+    }
+}
+```
+
+### Try/Catch with pipelines
 ```sh
 node {
     stage('Try and catch') {
