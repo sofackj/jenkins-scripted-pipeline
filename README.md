@@ -108,6 +108,41 @@ env.MY_VAR = [
 As for the list section, same results are obtained
 #### Properties for lists and dictionaries
 
+### Assign a command output to a variable
+- Assign the output of the command to the variable
+```sh
+node(){
+    // The command output 'ls -la' is assigned to the variable LIST_FILE
+    def LIST_FILES = sh (
+        // Definition of the command
+        script: 'ls -la',
+        // Return the display of the command to the variable
+        returnStdout: true
+        ).trim()// No line jump at the end
+        .readLines()// Generate a list and each line is an element of the list
+        .drop(0)// Remove the 0 first elements of the list
+        .join(" ")// Join the elements of the list with " "
+    
+    // Display the variable with 'Hello World' around
+    echo "Hello ${LIST_FILES} World"
+}
+```
+- Assign the status of the command to the variable
+```sh
+node(){
+    // The command output 'ls -la' is assigned to the variable LIST_FILE
+    def STATUS_COM = sh (
+        // Definition of the command
+        script: 'cat this-file-doesnt-exist.txt 2>&1',
+        // Return the status of the command to the variable
+        returnStatus: true
+        )
+        
+    // Display the variable with 'Hello World' around
+    echo "Status of the command : ${STATUS_COM} "
+}
+```
+
 ### How to do loops in pipelines
 Thanks to [Oiflnd](https://gist.github.com/oifland/ab56226d5f0375103141b5fbd7807398)
 
@@ -216,6 +251,32 @@ node('ansible-controller') {
             echo "SUCCESS !!! ${node['name']} is responding !"
         }
         }
+    }
+}
+```
+- Check a command and exit the pipeline if necessary
+```sh
+// Command to test
+def COMMAND = 'cat this-file-doesnt-exist.txt'
+// Path to the output file
+def OUTPUT_FILE = 'output.txt'
+// Job start
+node(){
+    // The command output 'ls -la' is assigned to the variable LIST_FILE
+    def STATUS_COM = sh (
+        // Definition of the command
+        script: "${COMMAND} >${OUTPUT_FILE} 2>&1",
+        // Return the status of the command to the variable
+        returnStatus: true
+        )
+    // Check the status of the command
+    if (STATUS_COM == 0){
+        // If the command is a success, display this message
+        echo "SUCCESS"
+    } else {
+        // Display the content of the file when this is an error
+        echo "ERROR MSG => ${readFile(OUTPUT_FILE).trim()}"
+        sh "exit 1"// In case you want to break the pipeline
     }
 }
 ```
