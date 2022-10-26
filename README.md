@@ -4,33 +4,106 @@
 
 ### Variables in Scripted pipelines
 Check his [guide](https://e.printstacktrace.blog/jenkins-pipeline-environment-variables-the-definitive-guide/)
-- Define variables : Simple way
+- Simple way
 ```sh
-node {
-    stage('Simple way'){
-        env.MY_VAR = 'my-value1'
+// Define the variable without env prefix
+def MY_VAR = 'Hello World' // def is not necessary but for readibility you need to mention it
+// Start job
+node() {
+    stage('Using env prefix') {
+        echo MY_VAR // SUCCESS
+        echo "${MY_VAR}" // SUCCESS
+        echo '${MY_VAR}' // FAIL -> output : ${MY_VAR}
+        sh 'echo ${MY_VAR}' // FAIL -> no output
+        sh "echo ${MY_VAR}" // SUCCESS
     }
-    stage('Dynamic way'){
-        def envVarName = 'MY_SEC_VAR' 
-        env.setProperty(envVarName, 'my-value2')
+}
+```
+- Using the env prefix
+```sh
+// Define the variable
+env.MY_VAR = 'Hello World'
+// Start job
+node() {
+    stage('Using env prefix') {
+        echo MY_VAR // SUCCESS
+        echo "${MY_VAR}" // SUCCESS
+        echo '${MY_VAR}' // FAIL
+        sh 'echo ${MY_VAR}' // SUCCESS
+        sh "echo ${MY_VAR}" // SUCCESS
     }
-    stage('Print MY_VAR'){
-        sh 'echo ${MY_VAR}'
-        sh 'echo ${MY_SEC_VAR}'
+}
+```
+- Define variables : Dynamic way
+```sh
+// Define the variable
+def ENV_VAR = 'MY_VAR' 
+env.setProperty(ENV_VAR, 'Hello World')
+// Start job
+node() {
+    stage('Using dynamic declaration') {
+        echo MY_VAR // SUCCESS
+        echo "${MY_VAR}" // SUCCESS
+        echo '${MY_VAR}' // FAIL -> output : ${MY_VAR}
+        sh 'echo ${MY_VAR}' // SUCCESS
+        sh "echo ${MY_VAR}" // SUCCESS
     }
 }
 ```
 - Define variables using [withEnv](https://www.cloudbees.com/blog/managing-your-jenkins-environment-using-withenv-a-tutorial)
 
 ```sh
-node {
-      withEnv(['value=World']) {
-           stage('Test variable') {
-               sh 'echo Hello, ${value}'
-           }
-      }
-  }
+// Define the variable
+withEnv(['MY_VAR=Hello World']) {
+    // Start the job
+    node(){
+        stage('Using withEnv method') {
+        echo MY_VAR // SUCCESS
+        echo "${MY_VAR}" // SUCCESS
+        echo '${MY_VAR}' // FAIL -> output : ${MY_VAR}
+        sh 'echo ${MY_VAR}' // SUCCESS
+        sh "echo ${MY_VAR}" // SUCCESS
+        }
+    }
+}
 ```
+### Lists and dictionaries in pipelines
+In the following examples, the method with env be used, but outputs for the simple way declaration will be shown
+- Declaration of a list type variable
+```sh
+// Define the variable
+env.MY_VAR = ['A', 'B', 'C']
+// def MY_VAR = ['A', 'B', 'C'] also works
+// Start job
+node() {
+    stage('Using env prefix') {
+        echo MY_VAR // SUCCESS
+        // (without env.) FAIL -> exit the pipeline
+        echo "${MY_VAR}" // SUCCESS
+        sh 'echo ${MY_VAR}' // SUCCESS
+        // (without env.) FAIL -> no output
+        sh "echo ${MY_VAR}" // SUCCESS
+    }
+}
+```
+It also works using the dynamic way :
+```sh
+// Define the variable
+def ENV_VAR = 'MY_VAR' 
+env.setProperty(ENV_VAR, ['A', 'B', 'C'])
+```
+No declaration was a success with the "withENd" method
+- Declaration of a dictionary type variable
+```sh
+// Define the variable
+// It also Works with def MY_VAR =...
+env.MY_VAR = [
+    'A' : 'Hello',
+    'B' : 'bye',
+    'C' : 'Nice'
+    ]
+```
+As for the list section, sma results are obtained
 
 ### Pipelines with conditions
 ```sh
