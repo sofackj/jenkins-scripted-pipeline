@@ -107,8 +107,10 @@ env.MY_VAR = [
 ```
 As for the list section, same results are obtained
 #### Properties for lists and dictionaries
+[To complete]
 
 ### Assign a command output to a variable
+Don't hesitate to check the [documenation](https://www.jenkins.io/doc/pipeline/steps/workflow-durable-task-step/#sh-shell-script)
 - Assign the output of the command to the variable
 ```sh
 node(){
@@ -277,6 +279,19 @@ node(){
         // Display the content of the file when this is an error
         echo "ERROR MSG => ${readFile(OUTPUT_FILE).trim()}"
         sh "exit 1"// In case you want to break the pipeline
+    }
+}
+```
+- Delete some directories for clean up
+```sh
+// List of directories
+def DIR_LIST = ['dir1', 'dir2', 'dir3']
+// STart job
+node("ansible-controller"){
+    for (directory in DIR_LIST){
+        dir(directory){
+            deleteDir()
+        }
     }
 }
 ```
