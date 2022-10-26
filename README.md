@@ -68,6 +68,7 @@ withEnv(['MY_VAR=Hello World']) {
 }
 ```
 ### Lists and dictionaries in pipelines
+#### Declaration
 In the following examples, the method with env be used, but outputs for the simple way declaration will be shown
 - Declaration of a list type variable
 ```sh
@@ -100,11 +101,43 @@ No declaration was a success with the "withENd" method
 env.MY_VAR = [
     'A' : 'Hello',
     'B' : 'bye',
-    'C' : 'Nice'
+    'C' : 'nice',
+    'D' : 'ciao'
     ]
 ```
-As for the list section, sma results are obtained
+As for the list section, same results are obtained
+#### Properties for lists and dictionaries
 
+### How to do loops in pipelines
+Thanks to [Oiflnd](https://gist.github.com/oifland/ab56226d5f0375103141b5fbd7807398)
+
+- Loops on a list without 'for'
+```sh
+// List type variables doesn't work with synamic and static declaration
+def MY_LIST = ['a', 'b', 'c']
+// Start job
+node() {
+    stage('Loop on the abcs variable') {
+        MY_LIST.each { item ->
+        sh "echo This is ${item}"
+        }
+    }
+}
+```
+- Loops on list with 'for'
+```sh
+//List type variables doesn't work with synamic and static declaration
+MY_LIST = ['a', 'b', 'c']
+// Start job
+node() {
+    stage('Loop on the abcs variable') {
+        echo "Here the elements of the list"
+        for (int i = 0; i < MY_LIST.size(); i++) {
+        sh "echo Hello ${my_list[i]}"
+        }
+    }
+}
+```
 ### Pipelines with conditions
 ```sh
 // Define a variable
@@ -118,37 +151,6 @@ node {
         } else {
             echo "Test FAILED"
             // Other steps can be added
-        }
-    }
-}
-```
-
-### How to do loops in pipelines
-Thanks to [Oiflnd](https://gist.github.com/oifland/ab56226d5f0375103141b5fbd7807398)
-
-- Loops on a list without 'for'
-```sh
-// List type variables doesn't work with synamic and static declaration
-my_list = ['a', 'b', 'c']
-// Start job
-node() {
-    stage('Loop on the abcs variable') {
-        my_list.each { item ->
-        sh "echo This is ${item}"
-        }
-    }
-}
-```
-- Loops on list with 'for'
-```sh
-//List type variables doesn't work with synamic and static declaration
-my_list = ['a', 'b', 'c']
-// Start job
-node() {
-    stage('Loop on the abcs variable') {
-        echo "Here the elements of the list"
-        for (int i = 0; i < my_list.size(); i++) {
-        sh "echo Hello ${my_list[i]}"
         }
     }
 }
@@ -169,6 +171,50 @@ node {
             echo e.toString()
             // Output -> hudson.AbortException: script returned exit code 1
             echo 'Something goes wrong !'
+        }
+    }
+}
+```
+### Examples
+- Check the ping of several servers
+```sh
+// Define the variable
+def IP_NODES = [
+    // Specs for node ansible
+    [
+        'name' : 'ansible',
+        'ipv4' : '192.168.73.128'
+        ],
+    // Specs for node jenkins
+    [
+        'name' : 'jenkins',
+        'ipv4' : '192.168.73.129'
+        ],
+    // Specs for node docker
+    [
+        'name' : 'docker',
+        'ipv4' : '192.168.73.130'
+        ]
+    ]
+// Start job and choose the ansible-controller as node
+node('ansible-controller') {
+    stage('Check SSH connection for nodes') {
+        // Start the loop for all nodes
+        // Each node is defined by the variable 'node'
+        IP_NODES.each{ node ->
+        echo "${node['name']} : ${node['ipv4']}"
+        echo "Test ping node ${node['name']}"
+        // Try and catch for the ping command
+        try {
+            sh "ping -c 1 ${node['ipv4']}"
+        // If no ping, going to catch and fails the pipeline
+        } catch (exc) {
+            echo "FAILED !!! ${node['name']} is out of reach..."
+            sh "exit 1"
+        // If ping detected, display the following message
+        } finally {
+            echo "SUCCESS !!! ${node['name']} is responding !"
+        }
         }
     }
 }
