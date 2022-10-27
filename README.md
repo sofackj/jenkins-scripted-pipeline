@@ -212,6 +212,79 @@ node {
     }
 }
 ```
+### Steps in parallel
+- Method 1 : Simple way
+```sh
+node {
+    stage('Build')
+    {
+        println 'I prepare the build for the parallel steps'
+    }
+    
+    stage('Test') {
+        parallel
+        (
+            "Step 1" :
+            {
+                stage("checkout") {echo "Hello World"};
+                stage("build") {echo "Hello World"};
+                stage("test") {echo "Hello World"}
+            },
+            "Step 2" :
+            {
+                stage("checkout") {echo "Hello World"};
+                stage("build") {echo "Hello World"};
+                stage("test") {echo "Hello World"}
+            },
+            "Step 3" :
+            {
+                stage("checkout") {echo "Hello World"};
+                stage("build") {echo "Hello World"};
+                stage("test") {echo "Hello World"}
+            }
+        )
+    }
+}
+```
+- Method 2 : Using a variable
+````sh
+// Declare an empty dictionary
+def test = [:]
+// Fill the dictionary with the following block
+// First block
+test["first-task"] = {
+    stage ("first-task") {
+        stage ("first-task-step-1") {
+            sh "echo Hello World"
+        }
+        stage ("first-task-step-2") {
+            sh "echo Eveything is fine"
+        }
+    }
+}
+// Second block
+test["second-task"] = {
+    stage ("second-task") {
+        stage ("second-task-step-1") {
+            sh "echo Hello World"
+        }
+        stage ("second-task-step-2") {
+            sh "echo Eveything is fine"
+        }
+    }
+}
+// Job start
+node {
+    stage ('Processes in parallel'){
+        // Setup the different tasks in parallel
+        parallel test
+    }
+    // Add an other stage after parallel processes
+    stage ('End stage') {
+       sh "echo Everything is done..."
+   }
+}
+```
 ### Examples
 - Check the ping of several servers
 ```sh
@@ -292,6 +365,44 @@ node("ansible-controller"){
         dir(directory){
             deleteDir()
         }
+    }
+}
+```
+- Start Httpd containers in parallel
+```sh
+// Job on the node with the label 'docker'
+node('docker') {
+    stage('Start containers') {
+        parallel(
+            // First step in parallel
+            'port-8081':
+            {
+                // Run a first httpd container
+                docker.image('httpd:alpine')
+                .withRun(' --name my-container -p 8081:80')
+                {
+                    sh 'curl http://localhost:8081'
+                    sleep 5
+                }
+            },
+            // Second step in parallel
+            'port-8082':
+            {
+                // Run a second httpd container
+                docker.image('httpd:alpine')
+                .withRun(' --name my-container-2 -p 8082:80')
+                {
+                    sh 'curl http://localhost:8082'
+                    sleep 5
+                }
+            },
+            // Third step in parallel
+            'Containers list' : 
+            {
+                // List active containers after 10s
+                sh 'sleep 5;docker ps'
+            }
+        )
     }
 }
 ```
