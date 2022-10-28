@@ -222,8 +222,7 @@ node {
     }
     
     stage('Test') {
-        parallel
-        (
+        parallel(
             "Step 1" :
             {
                 stage("checkout") {echo "Hello World"};
@@ -247,7 +246,7 @@ node {
 }
 ```
 - Method 2 : Using a variable
-````sh
+```sh
 // Declare an empty dictionary
 def test = [:]
 // Fill the dictionary with the following block
@@ -369,6 +368,7 @@ node("ansible-controller"){
 }
 ```
 - Start Httpd containers in parallel
+For this example you need [Docker Plugin](https://plugins.jenkins.io/docker-plugin/) and [Docker Pipeline](https://plugins.jenkins.io/docker-workflow/)
 ```sh
 // Job on the node with the label 'docker'
 node('docker') {
