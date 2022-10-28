@@ -328,7 +328,7 @@ node('ansible-controller') {
     }
 }
 ```
-- Check a command and exit the pipeline if necessary
+#### Check a command and exit the pipeline if necessary
 ```sh
 // Command to test
 def COMMAND = 'cat this-file-doesnt-exist.txt'
@@ -354,7 +354,7 @@ node(){
     }
 }
 ```
-- Delete some directories for clean up
+#### Delete some directories for clean up
 ```sh
 // List of directories
 def DIR_LIST = ['dir1', 'dir2', 'dir3']
@@ -367,12 +367,12 @@ node("ansible-controller"){
     }
 }
 ```
-- Start Web containers in parallel
+#### Start Web containers in parallel
 
 For this example you need :
+- A node with docker installed (installation on [Rocky Linux 8.6](https://docs.rockylinux.org/gemstones/docker/) and [Ubuntu 20.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04))
+- [Docker Plugin](https://plugins.jenkins.io/docker-plugin/) and [Docker Pipeline](https://plugins.jenkins.io/docker-workflow/) modules installed in Jenkins
 
-    - A node with docker installed (installation on [Rocky Linux 8.6](https://docs.rockylinux.org/gemstones/docker/) and [Ubuntu 20.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04))
-    - [Docker Plugin](https://plugins.jenkins.io/docker-plugin/) and [Docker Pipeline](https://plugins.jenkins.io/docker-workflow/)
 ```sh
 // Job on the node with the label 'docker'
 node('docker') {
