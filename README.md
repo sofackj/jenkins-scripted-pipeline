@@ -300,6 +300,7 @@ node {
 ```
 
 ### Jenkins with Docker
+#### Run containet with scripted pipelines
 - Run a container with the [httpd:alpine](https://hub.docker.com/layers/library/httpd/alpine/images/sha256-ad0e1b7942ad22dbcdadd4530381d5dd166d715aafd3b2d74bb6d22c95c51b44?context=explore) image
 ```sh
 //Define a node with the label docker
@@ -327,6 +328,33 @@ node ('docker'){
         //Check the distribution of the linux system
         sh "cat /etc/*release*"
         //Output : distribution of the container
+    }
+}
+```
+#### Example 1 : Run a container httpd to display webpage
+```sh
+//Define a node with the label docker
+node ('docker'){
+    // Create a directory
+    dir('hello_world'){
+        stage('One'){
+            // Add 'Hello World' to index.html
+            sh "echo 'Hello World' > index.html"
+        }
+        stage('Two'){
+            //Assign the image you want. Here the httpd:alpine
+            docker.image('httpd:alpine')
+            //Run the container defining
+            // A name 'my-container
+            // A port linkports link
+            // A volume sharing from our created directory to the directory displaying webpage
+            .withRun('--name my-container -p 8081:80 -v /home/devops/workspace/test-docker-agent/hello_world:/usr/local/apache2/htdocs/'){
+            //Check the distribution of the linux system
+            sh "curl localhost:8081"
+            //Output : distribution of the container
+            }
+        }
+        deleteDir()
     }
 }
 ```
