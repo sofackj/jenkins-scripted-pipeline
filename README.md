@@ -161,7 +161,21 @@ node() {
     }
 }
 ```
-- Loops on list with 'for'
+- Use of for without incrementation
+```sh
+//List type variables doesn't work with synamic and static declaration
+MY_LIST = ['a', 'b', 'c']
+// Start job
+node() {
+    stage('Loop on the abcs variable') {
+        echo "Here the elements of the list"
+        for (letter in MY_LIST) {
+        sh "echo Hello ${letter}"
+        }
+    }
+}
+```
+- Use of for with incrementation
 ```sh
 //List type variables doesn't work with synamic and static declaration
 MY_LIST = ['a', 'b', 'c']
@@ -282,6 +296,38 @@ node {
     stage ('End stage') {
        sh "echo Everything is done..."
    }
+}
+```
+
+### Jenkins with Docker
+- Run a container with the [httpd:alpine](https://hub.docker.com/layers/library/httpd/alpine/images/sha256-ad0e1b7942ad22dbcdadd4530381d5dd166d715aafd3b2d74bb6d22c95c51b44?context=explore) image
+```sh
+//Define a node with the label docker
+node ('docker'){
+    //Assign the image you want. Here the httpd:alpine
+    docker.image('httpd:alpine')
+    //Run the container defining a name and a ports link
+    .withRun('--name my-container -p 8081:80'){
+        //Check if it works checking the following url
+        sh "curl http://localhost:8081"
+        //Check the distribution of the linux system
+        sh "cat /etc/*release*"
+        //Output : distribution of the docker host
+    }
+}
+```
+- Method to run a container and interact in it
+```sh
+//Define a node with the label docker
+node ('docker'){
+    //Assign the image you want. Here the httpd:alpine
+    docker.image('httpd:alpine')
+    //Run the container defining a name and a ports link
+    .inside('--name my-container -p 8081:80'){
+        //Check the distribution of the linux system
+        sh "cat /etc/*release*"
+        //Output : distribution of the container
+    }
 }
 ```
 ### Examples
