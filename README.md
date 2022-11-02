@@ -298,7 +298,26 @@ node {
    }
 }
 ```
-
+### Clean the workspace with a script
+- Specific folder
+```sh
+node{
+    stage('one') {
+        dir('my_directory'){
+            sh "pwd"
+            deleteDir()
+        }
+    }
+}
+```
+- Clean up the workplace
+```sh
+node{
+    stage('one') {
+        cleanWs()
+    }
+}
+```
 ### Jenkins with Docker
 #### Run containet with scripted pipelines
 - Run a container with the [httpd:alpine](https://hub.docker.com/layers/library/httpd/alpine/images/sha256-ad0e1b7942ad22dbcdadd4530381d5dd166d715aafd3b2d74bb6d22c95c51b44?context=explore) image
@@ -346,7 +365,7 @@ node ('docker'){
             docker.image('httpd:alpine')
             //Run the container defining
             // A name 'my-container
-            // A port linkports link
+            // A port link
             // A volume sharing from our created directory to the directory displaying webpage
             .withRun('--name my-container -p 8081:80 -v /home/devops/workspace/test-docker-agent/hello_world:/usr/local/apache2/htdocs/'){
             //Check the distribution of the linux system
@@ -354,6 +373,7 @@ node ('docker'){
             //Output : distribution of the container
             }
         }
+        // Delete the directory
         deleteDir()
     }
 }
