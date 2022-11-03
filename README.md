@@ -311,6 +311,7 @@ node{
 }
 ```
 - Clean up the workplace
+The plugin [Workspace Cleanup Plugin](https://plugins.jenkins.io/ws-cleanup/) is needed for the process to work properly.
 ```sh
 node{
     stage('one') {
