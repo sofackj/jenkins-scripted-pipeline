@@ -496,6 +496,8 @@ node ('ansible') {
 }
 ```
 #### Add extra variables for Ansible via Jenkins
+For this case, we will use the 'Text Parameters'
+![text_param](ressources/ans-text-param.png)
 - Using the class 'extras' with 'ansiblePlaybook'
 ```sh
 // Convert string in list
