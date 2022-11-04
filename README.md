@@ -400,6 +400,9 @@ node ('ansible') {
 }
 ```
 #### Ansible Vault for Jenkins
+
+**The following setup aims for asking the vault password before running the pipeline to deploy the ansible playbook**
+
 Here, the arborecense we will used :
 ```sh
 # In the path/of/my/workspace/job-name/
@@ -433,8 +436,7 @@ ansible-vault encrypt hosts.yml
 # You will have a prompt asking for a password
 # In this example we are using 'toto'
 ```
-- Ask the password before the start of the pipeline
-  - First step : Insert the password in the pipeline (never do that)
+- First step : Insert the password in the pipeline (never do that)
 
 **WARNING** : This example is just to understand the concept. Never do that for your project
 
@@ -470,8 +472,22 @@ node ('ansible') {
 
 Don't forget to save your confguration before running your pipeline
 
-- Create credentials for ansible (external node) : When configuring credentials, choose "SSH username with private key"
-- Where to find 'credentialsId' value : Manage Jenkins > Manage Credentials > ID (column)
+```sh
+// Start the job on the ansible node
+node ('ansible') {
+    stage('init'){
+        // Add the password in the secret file
+        // Use %variable% to avoid the display of the password
+        sh "echo %MY_PASS% > secrets"
+    }
+    stage('one'){
+        // Command to invoke a playbook
+        ansiblePlaybook(
+            //... Complete with the code used earlier
+        )
+    }
+}
+```
 ### Examples
 - Check the ping of several servers
 ```sh
