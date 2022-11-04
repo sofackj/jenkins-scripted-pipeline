@@ -462,12 +462,14 @@ node ('ansible') {
     }
 }
 ```
+![add_param](ressources/ans-vault-param.png)
     - Second step : Ask for password before running the pipeline (strongly recommended)
         - Remove the line in the scripted pipeline : def MY_PASS = 'toto'
         - Check the box 'This build has parameters' in Configure > General
         - Choose 'Password' in 'Add parameter'
         - Add 'MY_PASS' to Name and 'toto'
         - Save the configuration
+
 - Create credentials for ansible (external node) : When configuring credentials, choose "SSH username with private key"
 - Where to find 'credentialsId' value : Manage Jenkins > Manage Credentials > ID (column)
 ### Examples
