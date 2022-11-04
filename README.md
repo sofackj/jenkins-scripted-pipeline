@@ -399,6 +399,65 @@ node ('ansible') {
     }
 }
 ```
+#### Ansible Vault for Jenkins
+Here, the arborecense we will used :
+```sh
+# In the path/of/my/workspace/job-name/
+.
+├── hosts.yml
+└── playbook.yml
+```
+Content of the hosts.yml file :
+```sh
+---
+all:
+  hosts:
+    localhost:
+```
+Content of the playbook.yml file :
+```sh
+---
+- name: First test
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+  - name: test message
+    debug:
+      msg: "Hello World"
+```
+In this example, we will encrypt the hosts.yml file (more detail about ansible-vault [here](https://docs.ansible.com/ansible/latest/user_guide/vault.html)).
+```sh
+ansible-vault encrypt hosts.yml
+```
+- Ask the password before the start of the pipeline
+**WARNING** : This example is just to understand the concept. Never do that for your project
+```sh
+// Define the password used to encrypt the hosts.yml file
+def MY_PASS = 'toto'
+// Start the job on the ansible node
+node ('ansible') {
+    stage('init'){
+        // Add the password in the secret file
+        sh "echo ${MY_PASS} > secrets"
+    }
+    stage('one'){
+        // Command to invoke a playbook
+        ansiblePlaybook(
+            // Credential added to jenkins credentials (username with private key)
+            credentialsId: 'private-key-ssh',
+            // Place of the inventory
+            inventory: 'hosts.yml',
+            // Place of the playbook
+            playbook: 'playbook.yml',
+            // Use the secret file to decrypt the hosts.yml files
+            extras: "--vault-pass-file secrets",
+            // Red and green colors appears (with Blue Ocean only)
+            colorized: true
+        )
+    }
+}
+```
 - Create credentials for ansible (external node) : When configuring credentials, choose "SSH username with private key"
 - Where to find 'credentialsId' value : Manage Jenkins > Manage Credentials > ID (column)
 ### Examples
