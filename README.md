@@ -379,6 +379,28 @@ node ('docker'){
     }
 }
 ```
+### Deploy ansible playbook with jenkins
+#### Invoke a simple playbook
+```sh
+// Node with ansible installed
+node ('ansible') {
+    stage('one'){
+        // Command to invoke a playbook
+        ansiblePlaybook(
+            // Credential added to jenkins credentials (username with private key)
+            credentialsId: '26d28191-d921-49dc-8478-082ef3a9f04b',
+            // Place of the inventory
+            inventory: 'hosts.yml',
+            // Place of the playbook
+            playbook: 'playbook.yml',
+            // Red and green colors appears (with Blue Ocean only)
+            colorized: true
+        )
+    }
+}
+```
+- Create credentials for ansible (external node) : When configuring credentials, choose "SSH username with private key"
+- Where to find 'credentialsId' value : Manage Jenkins > Manage Credentials > ID (column)
 ### Examples
 - Check the ping of several servers
 ```sh
