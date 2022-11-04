@@ -475,15 +475,75 @@ Don't forget to save your confguration before running your pipeline
 ```sh
 // Start the job on the ansible node
 node ('ansible') {
-    stage('init'){
-        // Add the password in the secret file
-        // Use %variable% to avoid the display of the password
-        sh "echo %MY_PASS% > secrets"
+    stage('Initialize the environement'){
+        sh "cp /home/devops/ansible-playground/ansible-projects/simple-test-pipeline/* ."
     }
-    stage('one'){
+    stage('Setup the vault password'){
+        // Add the password in the secret file without displaying the content during the pipeline
+        // This problem occurs using the echo ${MY_PASS} > secrets
+        writeFile file: 'secrets', text: MY_PASS
+    }
+    stage('Deploy the playbook'){
         // Command to invoke a playbook
         ansiblePlaybook(
-            //... Complete with the code used earlier
+            // Complete with the code from earlier
+        )
+    }
+    stage('Clean the workspace'){
+        // Command to clean the job directory
+        cleanWs()
+    }
+}
+```
+#### Add extra variables for Ansible via Jenkins
+- Using the class 'extras' with 'ansiblePlaybook'
+```sh
+// Convert string in list
+def my_vars = EXTRA_VARS.readLines()
+// Define an empty list
+def vars_list = []
+// Start the job on the ansible node
+node ('ansible') {
+    stage('Format input variables'){
+        // Loop through each element of the list
+        for (element in my_vars){
+            // assign the strings separate by ':' to variables i and j
+            def (i,j) = element.tokenize(':')
+            // Add the string with both formatted variables in it "-e <variable_name>=<value_assigned>"
+            // trim() remove spaces iaround the string
+            vars_list.add("-e ${i}='${j.trim()}'")
+        }
+    }
+    stage('Deploy the playbook'){
+        // Command to invoke a playbook
+        ansiblePlaybook(
+            // Complete with the code used earlier
+            // Add the list converted into a string string space as a separator
+            extras: "--vault-pass-file secrets ${vars_list.join(' ')}",
+        )
+}
+```
+- Using the class 'extraVars' with 'ansiblePlaybook'
+```sh
+// Convert string in list
+def vars_list = EXTRA_VARS.readLines()
+// Define an empty dictionary (map for groovy)
+def my_extra_vars = [:]
+// Start the job on the ansible node
+node ('ansible') {
+    stage('Format input variables'){
+// Loop through each element of the list
+        for (element in vars_list){
+            def (i,j) = element.tokenize(':')
+            // Add the string with both formatted variables as key, value pair
+            // trim() remove spaces iaround the string
+            my_extra_vars[i] = j.trim()
+        }
+    stage('Deploy the playbook'){
+        // Command to invoke a playbook
+        ansiblePlaybook(
+            // Complete qith the code used earlier
+            extraVars: my_extra_vars
         )
     }
 }
