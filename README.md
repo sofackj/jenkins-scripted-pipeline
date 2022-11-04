@@ -428,9 +428,13 @@ Content of the playbook.yml file :
 ```
 In this example, we will encrypt the hosts.yml file (more detail about ansible-vault [here](https://docs.ansible.com/ansible/latest/user_guide/vault.html)).
 ```sh
+# In the path of your hosts.yml
 ansible-vault encrypt hosts.yml
+# You will have a prompt asking for a password
+# In this example we are using 'toto'
 ```
 - Ask the password before the start of the pipeline
+    - First step : Insert the password in the pipeline (never do that)
 **WARNING** : This example is just to understand the concept. Never do that for your project
 ```sh
 // Define the password used to encrypt the hosts.yml file
@@ -458,6 +462,12 @@ node ('ansible') {
     }
 }
 ```
+    - Second step : Ask for password before running the pipeline (strongly recommended)
+        - Remove the line in the scripted pipeline : def MY_PASS = 'toto'
+        - Check the box 'This build has parameters' in Configure > General
+        - Choose 'Password' in 'Add parameter'
+        - Add 'MY_PASS' to Name and 'toto'
+        - Save the configuration
 - Create credentials for ansible (external node) : When configuring credentials, choose "SSH username with private key"
 - Where to find 'credentialsId' value : Manage Jenkins > Manage Credentials > ID (column)
 ### Examples
