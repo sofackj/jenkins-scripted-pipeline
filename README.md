@@ -381,6 +381,12 @@ node ('docker'){
 ```
 ### Deploy ansible playbook with jenkins
 #### Invoke a simple playbook
+
+More details available :
+
+-> [Examples](https://plugins.jenkins.io/ansible/)
+-> [Properties](https://www.jenkins.io/doc/pipeline/steps/ansible/)
+
 ```sh
 // Node with ansible installed
 node ('ansible') {
